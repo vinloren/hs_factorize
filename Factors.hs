@@ -43,8 +43,8 @@ filtB bl n = [x | x <- bl, isSqre(n `mod` x)]
 
 -- test smoothness y = (r^2 - n) thru B primes in list 'bl'
 tsmth :: Integer -> Integer -> [Integer] -> [Integer] -> [Integer]
-tsmth 1 e _ rl = rl++e:[]
-tsmth _ _ [] _ = []
+tsmth 1 e [] rl = rl
+tsmth _ 0 [] _ = []
 tsmth n e bl rl = if n `mod` head(bl) == 0 
   then (tsmth (n `div` head(bl)) (e+1) bl rl) 
   else (tsmth n 0 (tail(bl)) (rl++e:[]))
@@ -55,11 +55,11 @@ tsmth n e bl rl = if n `mod` head(bl) == 0
 -- when found, d is the incremet to radix, top is the limit scan, 
 scany :: Integer -> Integer -> [Integer] -> Integer -> Integer -> [(Integer,Integer,[Integer])] -> [(Integer,Integer,[Integer])]
 scany n r bl d top rs = if d == top 
-  then rs
-  else if length(rs) > length(bl)+1
+  then rs 
+  else if length(rs) > length(bl)
     then rs
     else if s /= [] 
-      then scany n r bl (d+1) top rs++(r+d,y,s):[]
+      then scany n r bl (d+1) top rs++(r+d,y,(map (`mod` 2) s)):[]
       else scany n r bl (d+1) top rs
     where 
         y=(r+d)^2 - n
