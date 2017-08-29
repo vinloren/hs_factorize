@@ -39,7 +39,7 @@ isSqre i = if (i == r*r) then True else False where r = (radix i 2 0)
 -- filtB: filter primes in list B purging those not supplying a quadratic residue
 -- to n mod p
 filtB :: [Integer] -> Integer -> [Integer]
-filtB bl n = [x | x <- bl, isSqre(n `mod` x)] 
+filtB bl n = [x | x <- bl, 1 == (powm n ((x-1) `div` 2) x 1)] 
 
 -- test smoothness y = (r^2 - n) thru B primes in list 'bl'
 tsmth :: Integer -> Integer -> [Integer] -> [Integer] -> [Integer]
@@ -53,17 +53,25 @@ tsmth n e bl rl = if n `mod` head(bl) == 0
 -- getting a list of triples r+x, y, s factors list. n is the semi-prime
 -- to get y = rn^2 - n from, bl is the B primes list, s is the smooth y
 -- when found, d is the incremet to radix, top is the limit scan, 
-scany :: Integer -> Integer -> [Integer] -> Integer -> Integer -> [(Integer,Integer,[Integer])] -> [(Integer,Integer,[Integer])]
-scany n r bl d top rs = if d == top 
-  then rs 
-  else if length(rs) > length(bl)
-    then rs
+scany :: Integer -> Integer -> [Integer] -> Integer -> Integer -> Int -> [(Integer,Integer,[Integer])] -> [(Integer,Integer,[Integer])]
+scany n r bl d top cnt rs = 
+  if d > top || cnt < 0
+    then rs 
     else if s /= [] 
-      then scany n r bl (d+1) top rs++(r+d,y,(map (`mod` 2) s)):[]
-      else scany n r bl (d+1) top rs
+      then scany n r bl (d+1) top (cnt-1) rs++(r+d,y,(map (`mod` 2) s)):[]
+      else scany n r bl (d+1) top cnt rs
     where 
-        y=(r+d)^2 - n
-        s = tsmth y 0 bl []
+      y=(r+d)^2 - n
+      s = tsmth y 0 bl []
+        
+-- compute modular power by using the quadratic sequence based on the least significant bit
+-- of the exponent. If 0 accumulate b*b in b, if 1 accumulate b*r in r. The exp. 'e' is 
+-- right shifted at each iteraction until it reaches 0 where the resul r is given back. 
+powm :: Integer -> Integer -> Integer -> Integer -> Integer
+powm b 0 m r = r
+powm b e m r
+  | e `mod` 2 == 1 = powm (b * b `mod` m) (e `div` 2) m (r * b `mod` m)
+powm b e m r = powm (b * b `mod` m) (e `div` 2) m r
       
       
 

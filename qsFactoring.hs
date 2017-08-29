@@ -12,7 +12,7 @@ main = do
   let bp = filtB (fndPrimes [2..bsz] []) n
   print bp
   let r = radix n 2 0
-  let scn = scany n r bp 1 (10*r) []
+  let scn = scany n r bp 1 (2*r) (length bp) []
   print (length(scn))
   print scn
   
