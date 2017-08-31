@@ -16,11 +16,12 @@ main = do
   putStrLn "Scanned sieve:"
   print (length(scn))
   print scn
-  let p2 = pow2 (length(bp)-1) []
+  let p2 = pow2 (toInteger(length(bp))-1) []
 -- print p2
   let bf = getBl scn p2 []
-  putStrLn "Exp binary matrix:"
-  print bf
+  let rs = replE scn bf []
+  putStrLn "r, y, Exp binary matrix:"
+  print rs
   
   
   

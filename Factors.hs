@@ -1,5 +1,4 @@
 -- factorizing support functions
-
 module Factors
 ( radix
 , fndPrimes
@@ -9,8 +8,10 @@ module Factors
 , scany
 , pow2
 , getBl
+, replE
 ) where
 
+import Data.Bits
 -- radix: find integer square root of integers by Newton method
 -- the final result is found when r1 becomes == r2 after a few
 -- iterations. Initially r1 = 2 r2 = 0 whatever 'n' be. The radix
@@ -77,28 +78,42 @@ powm b e m r = powm (b * b `mod` m) (e `div` 2) m r
 
 
 -- create list power of 2 up to limit
-pow2 :: Int -> [Int] -> [Int]
+pow2 :: Integer -> [Integer] -> [Integer]
 pow2 top r = if top > -1 
   then pow2 (top-1) (r++(2^top):[])
   else r
       
 -- multiply element list a * element list b 
-multL :: [Int] -> [Integer] -> [Integer] -> Int
+multL :: [Integer] -> [Integer] -> [Integer] -> Integer
 multL [] [] r = fromInteger(sum r)
-multL a b r = multL (tail(a)) (tail(b)) (((head(b)*toInteger(head(a)))):r)
+multL a b r = multL (tail(a)) (tail(b)) (((head(b)*(head(a)))):r)
 
 -- get third element in triplets
 trd :: (Integer,Integer,[Integer]) -> [Integer]
 trd (_,_,x) = x
+
+-- get second element in triplets
+sec :: (Integer,Integer,[Integer]) -> Integer
+sec (_,x,_) = x
+
+-- get first element in triplets
+fir :: (Integer,Integer,[Integer]) -> Integer
+fir (x,_,_) = x
 
 -- get S exp factors from triplets from scany
 getSf :: (Integer,Integer,[Integer]) -> [Integer]
 getSf r = trd(r)
 
 -- get binary list of S exponent converted to binary integer
-getBl :: [(Integer,Integer,[Integer])] -> [Int] -> [Int] -> [Int]
+getBl :: [(Integer,Integer,[Integer])] -> [Integer] -> [Integer] -> [Integer]
 getBl [] _ r = r
 getBl l p2 r = getBl (tail(l)) p2 (r++s:[]) where s = multL p2 (getSf(head(l))) [] 
+
+-- replace exp list in third param of triplets list with corresponding 
+-- integer value in getBl
+replE :: [(Integer,Integer,[Integer])] -> [Integer] -> [(Integer,Integer,Integer)] -> [(Integer,Integer,Integer)]
+replE l [] r = r
+replE l b r = replE (tail(l)) (tail(b)) ((fir(head(l)),sec(head(l)),head(b)):r) 
 
   
 
