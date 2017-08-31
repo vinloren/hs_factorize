@@ -13,8 +13,14 @@ main = do
   print bp
   let r = radix n 2 0
   let scn = scany n r bp 1 (2*r) (length bp) []
+  putStrLn "Scanned sieve:"
   print (length(scn))
   print scn
+  let p2 = pow2 (length(bp)-1) []
+-- print p2
+  let bf = getBl scn p2 []
+  putStrLn "Exp binary matrix:"
+  print bf
   
   
   
