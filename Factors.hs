@@ -133,6 +133,10 @@ sort3 l mi r = sort3 t (0,0,-1) (r++(m:[]))
     m = max3 l mi
     t = [x | x <-l, x /= m]
     
+-- redux triplet j to rp in matrix where j is replaced by rp. return sorted matrix
+redux :: [(Integer,Integer,Integer)] -> (Integer,Integer,Integer) -> (Integer,Integer,Integer) -> [(Integer,Integer,Integer)]
+redux l j rp = sort3 ([ x | x <- l, x /= j]++rp:[]) (0,0,(-1)) []
+    
 
 
   
