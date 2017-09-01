@@ -22,6 +22,10 @@ main = do
   let rs = replE scn bf []
   putStrLn "r, y, Exp binary matrix:"
   print rs
+  putStrLn "Sorted scn :"
+  let srt3 = sort3 rs (0,0,(-1)) []
+  print srt3
+  
   
   
   

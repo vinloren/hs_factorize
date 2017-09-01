@@ -9,6 +9,7 @@ module Factors
 , pow2
 , getBl
 , replE
+, sort3
 ) where
 
 import Data.Bits
@@ -92,6 +93,10 @@ multL a b r = multL (tail(a)) (tail(b)) (((head(b)*(head(a)))):r)
 trd :: (Integer,Integer,[Integer]) -> [Integer]
 trd (_,_,x) = x
 
+-- get third element in triplets
+trdi :: (Integer,Integer,Integer) -> Integer
+trdi (_,_,x) = x
+
 -- get second element in triplets
 sec :: (Integer,Integer,[Integer]) -> Integer
 sec (_,x,_) = x
@@ -114,6 +119,23 @@ getBl l p2 r = getBl (tail(l)) p2 (r++s:[]) where s = multL p2 (getSf(head(l))) 
 replE :: [(Integer,Integer,[Integer])] -> [Integer] -> [(Integer,Integer,Integer)] -> [(Integer,Integer,Integer)]
 replE l [] r = r
 replE l b r = replE (tail(l)) (tail(b)) ((fir(head(l)),sec(head(l)),head(b)):r) 
+
+-- fetch triplet with max value in third param
+max3 :: [(Integer,Integer,Integer)] -> (Integer,Integer,Integer) -> (Integer,Integer,Integer) 
+max3 [] t = t
+max3 l t = max3 (tail(l)) (if trdi(head(l)) > trdi(t) then (head(l)) else t)
+
+-- sort3 sort triplets in replE list
+sort3 :: [(Integer,Integer,Integer)] -> (Integer,Integer,Integer) -> [(Integer,Integer,Integer)] -> [(Integer,Integer,Integer)]
+sort3 [] _ r = r
+sort3 l mi r = sort3 t (0,0,-1) (r++(m:[])) 
+  where 
+    m = max3 l mi
+    t = [x | x <-l, x /= m]
+    
+
+
+  
 
   
 
