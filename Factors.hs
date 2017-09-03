@@ -10,9 +10,11 @@ module Factors
 , getBl
 , replE
 , sort3
+, rgs
 ) where
 
 import Data.Bits
+import Debug.Trace
 -- radix: find integer square root of integers by Newton method
 -- the final result is found when r1 becomes == r2 after a few
 -- iterations. Initially r1 = 2 r2 = 0 whatever 'n' be. The radix
@@ -33,10 +35,7 @@ fndPrimes il ol = fndPrimes [x | x <- tail(il), (x `mod` head(il)) > 0] (ol++hea
 prSqre :: [Integer] -> [(Integer,Integer)]
 prSqre il = [(x,x*x) | x <- il]
 
--- isSqre: test if a Integer is a square. This function is useful to detect
--- prime factors suitable to be enlisted in B smooth primes used to collect
--- r^2 - n equations to populate the sieve (as big as the # of primes in B +1)
--- The prime in B is suitable if (n mod p) = a square otherwise it is skipped
+-- isSqre: test if a Integer is a square.
 isSqre :: Integer -> Bool
 isSqre i = if (i == r*r) then True else False where r = (radix i 2 0)
 
@@ -101,9 +100,17 @@ trdi (_,_,x) = x
 sec :: (Integer,Integer,[Integer]) -> Integer
 sec (_,x,_) = x
 
+-- get second element in triplets
+seci :: (Integer,Integer,Integer) -> Integer
+seci (_,x,_) = x
+
 -- get first element in triplets
 fir :: (Integer,Integer,[Integer]) -> Integer
 fir (x,_,_) = x
+
+-- get first element in triplets
+firi :: (Integer,Integer,Integer) -> Integer
+firi (x,_,_) = x
 
 -- get S exp factors from triplets from scany
 getSf :: (Integer,Integer,[Integer]) -> [Integer]
@@ -136,10 +143,26 @@ sort3 l mi r = sort3 t (0,0,-1) (r++(m:[]))
 -- redux triplet j to rp in matrix where j is replaced by rp. return sorted matrix
 redux :: [(Integer,Integer,Integer)] -> (Integer,Integer,Integer) -> (Integer,Integer,Integer) -> [(Integer,Integer,Integer)]
 redux l j rp = sort3 ([ x | x <- l, x /= j]++rp:[]) (0,0,(-1)) []
-    
 
+-- rgs reduce matrix with gauss algoritm. Start prom bottom to top i search of first '1'
+rgs :: [(Integer,Integer,Integer)] -> Int -> Int -> Int -> Int -> [(Integer,Integer,Integer)] 
+rgs l i j c r = do
+  if i == c
+    then l
+    else do 
+      let tg = trdi(l!!j)
+      let x = (tg .&. (2^(c-i-1)))
+      if x == 0
+        then rgs l i (j-1) c r
+        else if j > i
+        then do 
+          let t = l!!(j-1)
+          let t1 = l!!j
+          let p = trdi(t1) 
+          let q = trdi(t)
+          let b = (firi(t)*firi(t1),seci(t1)*seci(t),(xor p q))
+          let rdx = redux l t b
+          rgs rdx i j c r
+        else rgs l (i+1) r c r
 
-  
-
-  
 

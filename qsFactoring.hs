@@ -25,6 +25,10 @@ main = do
   putStrLn "Sorted scn :"
   let srt3 = sort3 rs (0,0,(-1)) []
   print srt3
+  let sol = rgs srt3 0 (length(scn)-1) (length bp) (length(scn)-1)
+  putStrLn "Solution:"
+  print sol
+  
   
   
   
