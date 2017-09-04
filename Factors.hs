@@ -7,6 +7,7 @@ module Factors
 , tsmth
 , scany
 , pow2
+, powm
 , getBl
 , replE
 , sort3
@@ -15,7 +16,7 @@ module Factors
 ) where
 
 import Data.Bits
-import Debug.Trace
+-- import Debug.Trace
 -- radix: find integer square root of integers by Newton method
 -- the final result is found when r1 becomes == r2 after a few
 -- iterations. Initially r1 = 2 r2 = 0 whatever 'n' be. The radix
@@ -145,7 +146,7 @@ sort3 l mi r = sort3 t (0,0,-1) (r++(m:[]))
 redux :: [(Integer,Integer,Integer)] -> (Integer,Integer,Integer) -> (Integer,Integer,Integer) -> [(Integer,Integer,Integer)]
 redux l j rp = sort3 ([ x | x <- l, x /= j]++rp:[]) (0,0,(-1)) []
 
--- rgs reduce matrix with gauss algoritm. Start prom bottom to top i search of first '1'
+-- rgs reduce matrix with gauss algoritm. Start from bottom to top i search of first '1'
 rgs :: [(Integer,Integer,Integer)] -> Int -> Int -> Int -> Int -> [(Integer,Integer,Integer)] 
 rgs l i j c r = do
   if i == c
@@ -154,7 +155,9 @@ rgs l i j c r = do
       let tg = trdi(l!!j)
       let x = (tg .&. (2^(c-i-1)))
       if x == 0
-        then rgs l i (j-1) c r
+        then if j > 0
+          then rgs l i (j-1) c r
+          else rgs l (i+1) r c r
         else if j > i
         then do 
           let t = l!!(j-1)
