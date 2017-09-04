@@ -20,14 +20,21 @@ main = do
 -- print p2
   let bf = getBl scn p2 []
   let rs = replE scn bf []
-  putStrLn "r, y, Exp binary matrix:"
-  print rs
-  putStrLn "Sorted scn :"
+--  putStrLn "r, y, Exp binary matrix:"
+--  print rs
+--  putStrLn "Sorted scn :"
   let srt3 = sort3 rs (0,0,(-1)) []
-  print srt3
+--  print srt3
   let sol = rgs srt3 0 (length(scn)-1) (length bp) (length(scn)-1)
-  putStrLn "Solution:"
-  print sol
+--  putStrLn "Solution:"
+--  print sol
+--  let fin = sols sol 0 0  (length bp)
+--  print fin
+  putStr ("N. solutions: ")
+  print (length sol)
+  let rslt = resolv sol n
+  putStr ("found (p,q): ")
+  print rslt
   
   
   

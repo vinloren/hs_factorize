@@ -11,6 +11,7 @@ module Factors
 , replE
 , sort3
 , rgs
+, resolv
 ) where
 
 import Data.Bits
@@ -148,7 +149,7 @@ redux l j rp = sort3 ([ x | x <- l, x /= j]++rp:[]) (0,0,(-1)) []
 rgs :: [(Integer,Integer,Integer)] -> Int -> Int -> Int -> Int -> [(Integer,Integer,Integer)] 
 rgs l i j c r = do
   if i == c
-    then l
+    then sols l 0 0 c
     else do 
       let tg = trdi(l!!j)
       let x = (tg .&. (2^(c-i-1)))
@@ -165,4 +166,35 @@ rgs l i j c r = do
           rgs rdx i j c r
         else rgs l (i+1) r c r
 
+
+-- sols: find solutions in the matrix received by rgs
+sols :: [(Integer,Integer,Integer)] -> Int -> Int -> Int -> [(Integer,Integer,Integer)]
+sols l i j c = do
+  if i == c
+    then [x | x <- l, trdi(x) == 0]
+    else do
+      let cl = 2^(c-i-1)
+      let tg = (trdi(l!!j))
+      if (cl .&. tg) > 0 && i == j
+        then sols l (i+1) (j+1) c
+        else if (cl .&. tg) == 0 && i == j
+          then sols l (i+1) j c
+          else if (cl .&. tg) == 0 && i /= j
+            then sols l (i+1) j c
+            else if i < c 
+              then do
+                let tg1 = (trdi(l!!(j+1)))
+                if (cl .&. tg1) > 0
+                  then do
+                    let a = (firi(l!!j),seci(l!!j),tg)
+                    let b = (firi(l!!j)*firi(l!!(j+1)),seci(l!!j)*seci(l!!(j+1)),(xor tg tg1))
+                    let rdx = redux l a b
+                    sols rdx i j c
+                else sols l (i+1) (j+1) c
+            else sols l (i+1) (j+1) c
+   
+-- find the factors p,q of the target semi prime. l is list of (r, r^2-y, exps) from 
+-- resolved matrix
+resolv :: [(Integer,Integer,Integer)] -> Integer -> [(Integer,Integer)]
+resolv l m = [rsv x m | x <- l, let rsv x m = (p,q) where p = (gcd (firi(x) - radix (seci(x)) 2 0) m); q = m `div` p]
 
