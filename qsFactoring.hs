@@ -34,8 +34,8 @@ getopt = do
        putStrLn "Decimal digits for the two primes to be generated?"
        inp <- getLine
        let dig = read(inp)   
-       let b1 = 10^dig
-       let b2 = 10^(dig-2)+b1
+       let b1 = 2*10^(dig-1)
+       let b2 = 5*10^(dig-1)
        nu <- randomRIO(b1, b2)
        let p = if nu  `mod` 2 == 1 then nu else nu + 1
        let fact1 = findPrime p
@@ -70,7 +70,6 @@ main = do
  print (diffUTCTime siev start)
  let ln = toInteger(length bp)
  let p2 = pow2 (ln-1) []
--- print p2
  let bf = getBl scn p2 []
  let rs = replE scn bf []
 --  putStrLn "r, y, Exp binary matrix:"
