@@ -90,12 +90,11 @@ main = do
  print (diffUTCTime red siev)
 -- print sol
  let rslt = (resolv sol n)
+ putStr "found (p,q): "
+ print rslt
  end <- getCurrentTime
  putStr "Factors found in "
  print (diffUTCTime end start)
- putStr "found (p,q): "
- print rslt
-
 
        
 
