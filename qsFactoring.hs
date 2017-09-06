@@ -34,8 +34,8 @@ getopt = do
        putStrLn "Decimal digits for the two primes to be generated?"
        inp <- getLine
        let dig = read(inp)   
-       let b1 = 2*10^(dig-1)
-       let b2 = 5*10^(dig-1)
+       let b1 = 10^(dig-1)
+       let b2 = 9*10^(dig-1)
        nu <- randomRIO(b1, b2)
        let p = if nu  `mod` 2 == 1 then nu else nu + 1
        let fact1 = findPrime p
@@ -51,7 +51,8 @@ main = do
  putStr "Semi prime: "
  print (show n)
  let b = log (fromIntegral n)
- let sqb = 0.5 * sqrt (b)
+ let f = if n < 10^10 then 0.58 else if n < 10^14 then 0.54 else 0.5
+ let sqb = f * sqrt (b)
  let lgb = sqrt (log (b))
 -- print lgb
  let bsz = round (exp (sqb * lgb))
@@ -64,7 +65,7 @@ main = do
  let scn = scany n r bp 1 (2*r) (length bp) []
  putStrLn "Scanned sieve:"
  print (length(scn))
- print scn
+-- print scn
  siev <- getCurrentTime
  putStr "Scan done in "
  print (diffUTCTime siev start)
@@ -93,7 +94,7 @@ main = do
  putStr "Factors found in "
  print (diffUTCTime end start)
  putStr "found (p,q): "
- print (show(rslt))
+ print rslt
 
 
        
