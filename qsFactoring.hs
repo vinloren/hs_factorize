@@ -73,23 +73,23 @@ main = do
  let p2 = pow2 (ln-1) []
  let bf = getBl scn p2 []
  let rs = replE scn bf []
---  putStrLn "r, y, Exp binary matrix:"
---  print rs
---  putStrLn "Sorted scn :"
- let srt3 = sort3 rs (0,0,(-1)) []
---  print srt3
+-- putStrLn "r, y, Exp binary matrix:"
+-- print rs
+-- putStrLn "Sorted scn :"
+ let srt3 = sort3 rs (0,fill0 (length(bp)) [],(-1)) []
+-- print srt3
  let sol = rgs srt3 0 (length(scn)-1) (length bp) (length(scn)-1)
---  putStrLn "Solution:"
---  print sol
---  let fin = sols sol 0 0  (length bp)
---  print fin
+-- putStrLn "Solution:"
+-- print sol
+-- let fin = sols sol 0 0  (length bp)
+-- print fin
  putStr ("N. solutions: ")
  print (length sol)
  red <- getCurrentTime
  putStr "Matrix reduced in "
  print (diffUTCTime red siev)
 -- print sol
- let rslt = (resolv sol n)
+ let rslt = (resolv sol n bp)
  putStr "found (p,q): "
  print rslt
  end <- getCurrentTime

@@ -13,10 +13,12 @@ module Factors
 , sort3
 , rgs
 , resolv
+, fill0
 ) where
 
 import Data.Bits
 -- import Debug.Trace
+
 -- radix: find integer square root of integers by Newton method
 -- the final result is found when r1 becomes == r2 after a few
 -- iterations. Initially r1 = 2 r2 = 0 whatever 'n' be. The radix
@@ -55,15 +57,16 @@ tsmth n e bl rl = if n `mod` head(bl) == 0
   else (tsmth n 0 (tail(bl)) (rl++e:[]))
 
 -- scan sequential (radix n + 1,2,3,x)^2 - n to be smooth with B factors
--- getting a list of triples r+x, y, s factors list. n is the semi-prime
--- to get y = rn^2 - n from, bl is the B primes list, s is the smooth y
+-- getting a list of triples r+x, y (list of factors' exp), s = y but exps
+-- are mod 2 for eventual matrix reduction, n is the semi-prime from which
+-- y = rn^2 - n is got from, bl is the B primes list, s is the smooth y
 -- when found, d is the incremet to radix, top is the limit scan, 
-scany :: Integer -> Integer -> [Integer] -> Integer -> Integer -> Int -> [(Integer,Integer,[Integer])] -> [(Integer,Integer,[Integer])]
+scany :: Integer -> Integer -> [Integer] -> Integer -> Integer -> Int -> [(Integer,[Integer],[Integer])] -> [(Integer,[Integer],[Integer])]
 scany n r bl d top cnt rs = 
   if d > top || cnt < 0
     then rs 
     else if s /= [] 
-      then scany n r bl (d+1) top (cnt-1) rs++(r+d,y,(map (`mod` 2) s)):[]
+      then scany n r bl (d+1) top (cnt-1) rs++(r+d,s,(map (`mod` 2) s)):[]
       else scany n r bl (d+1) top cnt rs
     where 
       y=(r+d)^2 - n
@@ -91,63 +94,78 @@ multL [] [] r = fromInteger(sum r)
 multL a b r = multL (tail(a)) (tail(b)) (((head(b)*(head(a)))):r)
 
 -- get third element in triplets
-trd :: (Integer,Integer,[Integer]) -> [Integer]
+trd :: (Integer,[Integer],[Integer]) -> [Integer]
 trd (_,_,x) = x
 
 -- get third element in triplets
-trdi :: (Integer,Integer,Integer) -> Integer
+trdi :: (Integer,[Integer],Integer) -> Integer
 trdi (_,_,x) = x
 
 -- get second element in triplets
-sec :: (Integer,Integer,[Integer]) -> Integer
+sec :: (Integer,[Integer],[Integer]) -> [Integer]
 sec (_,x,_) = x
 
 -- get second element in triplets
-seci :: (Integer,Integer,Integer) -> Integer
+seci :: (Integer,[Integer],Integer) -> [Integer]
 seci (_,x,_) = x
 
 -- get first element in triplets
-fir :: (Integer,Integer,[Integer]) -> Integer
+fir :: (Integer,[Integer],[Integer]) -> Integer
 fir (x,_,_) = x
 
 -- get first element in triplets
-firi :: (Integer,Integer,Integer) -> Integer
+firi :: (Integer,[Integer],Integer) -> Integer
 firi (x,_,_) = x
 
 -- get S exp factors from triplets from scany
-getSf :: (Integer,Integer,[Integer]) -> [Integer]
+getSf :: (Integer,[Integer],[Integer]) -> [Integer]
 getSf r = trd(r)
 
 -- get binary list of S exponent converted to binary integer
-getBl :: [(Integer,Integer,[Integer])] -> [Integer] -> [Integer] -> [Integer]
+getBl :: [(Integer,[Integer],[Integer])] -> [Integer] -> [Integer] -> [Integer]
 getBl [] _ r = r
 getBl l p2 r = getBl (tail(l)) p2 (r++s:[]) where s = multL p2 (getSf(head(l))) [] 
 
 -- replace exp list in third param of triplets list with corresponding 
 -- integer value in getBl
-replE :: [(Integer,Integer,[Integer])] -> [Integer] -> [(Integer,Integer,Integer)] -> [(Integer,Integer,Integer)]
+replE :: [(Integer,[Integer],[Integer])] -> [Integer] -> [(Integer,[Integer],Integer)] -> [(Integer,[Integer],Integer)]
 replE l [] r = r
 replE l b r = replE (tail(l)) (tail(b)) ((fir(head(l)),sec(head(l)),head(b)):r) 
 
 -- fetch triplet with max value in third param
-max3 :: [(Integer,Integer,Integer)] -> (Integer,Integer,Integer) -> (Integer,Integer,Integer) 
+max3 :: [(Integer,[Integer],Integer)] -> (Integer,[Integer],Integer) -> (Integer,[Integer],Integer) 
 max3 [] t = t
 max3 l t = max3 (tail(l)) (if trdi(head(l)) > trdi(t) then (head(l)) else t)
 
 -- sort3 sort triplets in replE list
-sort3 :: [(Integer,Integer,Integer)] -> (Integer,Integer,Integer) -> [(Integer,Integer,Integer)] -> [(Integer,Integer,Integer)]
+sort3 :: [(Integer,[Integer],Integer)] -> (Integer,[Integer],Integer) -> [(Integer,[Integer],Integer)] -> [(Integer,[Integer],Integer)]
 sort3 [] _ r = r
-sort3 l mi r = sort3 t (0,0,-1) (r++(m:[])) 
+sort3 l mi r = sort3 t (0,[0,0,0],-1) (r++(m:[])) 
   where 
     m = max3 l mi
     t = [x | x <-l, x /= m]
     
 -- redux triplet j to rp in matrix where j is replaced by rp. return sorted matrix
-redux :: [(Integer,Integer,Integer)] -> (Integer,Integer,Integer) -> (Integer,Integer,Integer) -> [(Integer,Integer,Integer)]
-redux l j rp = sort3 ([ x | x <- l, x /= j]++rp:[]) (0,0,(-1)) []
+redux :: [(Integer,[Integer],Integer)] -> (Integer,[Integer],Integer) -> (Integer,[Integer],Integer) -> [(Integer,[Integer],Integer)]
+redux l j rp = sort3 ([ x | x <- l, x /= j]++rp:[]) (0,fill0 ((length l)-1) [],(-1)) []
 
--- rgs reduce matrix with gauss algoritm. Start from bottom to top i search of first '1'
-rgs :: [(Integer,Integer,Integer)] -> Int -> Int -> Int -> Int -> [(Integer,Integer,Integer)] 
+-- sumexp: sum exp list of y factors element to element
+sumexp :: [Integer] -> [Integer] -> [Integer] -> [Integer]
+sumexp [] [] c = c
+sumexp a b c = sumexp (tail(a)) (tail(b)) (c++(head(a) + head(b)):[])
+
+-- fexp get sqrt of y by B factors exps/2 in matrix 
+fexp :: [Integer] -> [Integer] -> Integer -> Integer
+fexp [] [] r = r
+fexp a b r = fexp (tail(a)) (tail(b)) (r*((head(a))^(head(b) `div` 2)))
+
+-- fill0: fill of 0 the exponent factor list in matrix
+fill0 :: Int -> [Integer] -> [Integer]
+fill0 0 b = b
+fill0 n b = fill0 (n-1) (0:b)
+
+-- rgs reduce matrix with gauss algoritm. Start from bottom to top in search of first '1'
+rgs :: [(Integer,[Integer],Integer)] -> Int -> Int -> Int -> Int -> [(Integer,[Integer],Integer)] 
 rgs l i j c r = do
   if i == c
     then sols l 0 0 c
@@ -164,14 +182,14 @@ rgs l i j c r = do
           let t1 = l!!j
           let p = trdi(t1) 
           let q = trdi(t)
-          let b = (firi(t)*firi(t1),seci(t1)*seci(t),(xor p q))
+          let b = (firi(t)*firi(t1),sumexp (seci(t1)) (seci(t)) [],(xor p q))  -- modificare seci(t1)*seci(t) in lista somma esponenti di fatt. y
           let rdx = redux l t b
           rgs rdx i j c r
         else rgs l (i+1) r c r
 
 
 -- sols: find solutions in the matrix received by rgs
-sols :: [(Integer,Integer,Integer)] -> Int -> Int -> Int -> [(Integer,Integer,Integer)]
+sols :: [(Integer,[Integer],Integer)] -> Int -> Int -> Int -> [(Integer,[Integer],Integer)]
 sols l i j c = do
   if i == c
     then [x | x <- l, trdi(x) == 0]
@@ -190,7 +208,7 @@ sols l i j c = do
                 if (cl .&. tg1) > 0
                   then do
                     let a = (firi(l!!j),seci(l!!j),tg)
-                    let b = (firi(l!!j)*firi(l!!(j+1)),seci(l!!j)*seci(l!!(j+1)),(xor tg tg1))
+                    let b = (firi(l!!j)*firi(l!!(j+1)),sumexp (seci(l!!j)) (seci(l!!(j+1))) [],(xor tg tg1))
                     let rdx = redux l a b
                     sols rdx i j c
                 else sols l (i+1) (j+1) c
@@ -198,6 +216,7 @@ sols l i j c = do
    
 -- find the factors p,q of the target semi prime. l is list of (r, r^2-y, exps) from 
 -- resolved matrix
-resolv :: [(Integer,Integer,Integer)] -> Integer -> [(Integer,Integer)]
-resolv l m = [rsv x m | x <- l, let rsv x m = (p,q) where p = (gcd (firi(x) - radix (seci(x)) 2 0) m); q = m `div` p]
+resolv :: [(Integer,[Integer],Integer)] -> Integer -> [Integer] -> [(Integer,Integer)]
+resolv l m bl = [rsv x m | x <- l, let rsv x m = (p,q) where p = (gcd (firi(x) - r) m); r = fexp bl (seci(x)) 1; q = m `div` p]
 
+ 
