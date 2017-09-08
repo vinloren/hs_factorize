@@ -51,14 +51,18 @@ main = do
  putStr "Semi prime: "
  print (show n)
  let b = log (fromIntegral n)
- let f = if n < 10^10 then 0.58 else if n < 10^14 then 0.54 else 0.5
+ let f = 0.45
  let sqb = f * sqrt (b)
  let lgb = sqrt (log (b))
 -- print lgb
  let bsz = round (exp (sqb * lgb))
+ let lgbsz = log (exp (sqb * lgb))
+ let nf = round((fromIntegral bsz) / lgbsz)
  putStr "Max B : "
  print bsz
- let bp = filtB (fndPrimes [2..bsz] []) n
+ putStr "Num factors:"
+ print nf
+ let bp = take nf (filtB (fndPrimes [2..2*bsz] []) n)
  print bp
  start <- getCurrentTime
  let r = radix n 2 0
@@ -73,18 +77,13 @@ main = do
  let p2 = pow2 (ln-1) []
  let bf = getBl scn p2 []
  let rs = replE scn bf []
--- putStrLn "r, y, Exp binary matrix:"
--- print rs
--- putStrLn "Sorted scn :"
- let srt3 = sort3 rs (0,fill0 (length(bp)) [],(-1)) []
--- print srt3
+ let srt3 = sort3 rs (0,[0],(-1)) []
  let sol = rgs srt3 0 (length(scn)-1) (length bp) (length(scn)-1)
--- putStrLn "Solution:"
--- print sol
--- let fin = sols sol 0 0  (length bp)
--- print fin
  putStr ("N. solutions: ")
  print (length sol)
+-- let gl = glenr sol []
+-- putStrLn "r length in dec. digits:"
+-- print gl 
  red <- getCurrentTime
  putStr "Matrix reduced in "
  print (diffUTCTime red siev)

@@ -13,7 +13,6 @@ module Factors
 , sort3
 , rgs
 , resolv
-, fill0
 ) where
 
 import Data.Bits
@@ -140,14 +139,14 @@ max3 l t = max3 (tail(l)) (if trdi(head(l)) > trdi(t) then (head(l)) else t)
 -- sort3 sort triplets in replE list
 sort3 :: [(Integer,[Integer],Integer)] -> (Integer,[Integer],Integer) -> [(Integer,[Integer],Integer)] -> [(Integer,[Integer],Integer)]
 sort3 [] _ r = r
-sort3 l mi r = sort3 t (0,[0,0,0],-1) (r++(m:[])) 
+sort3 l mi r = sort3 t (0,[0],-1) (r++(m:[])) 
   where 
     m = max3 l mi
     t = [x | x <-l, x /= m]
     
 -- redux triplet j to rp in matrix where j is replaced by rp. return sorted matrix
 redux :: [(Integer,[Integer],Integer)] -> (Integer,[Integer],Integer) -> (Integer,[Integer],Integer) -> [(Integer,[Integer],Integer)]
-redux l j rp = sort3 ([ x | x <- l, x /= j]++rp:[]) (0,fill0 ((length l)-1) [],(-1)) []
+redux l j rp = sort3 ([ x | x <- l, x /= j]++rp:[]) (0,[0],(-1)) []
 
 -- sumexp: sum exp list of y factors element to element
 sumexp :: [Integer] -> [Integer] -> [Integer] -> [Integer]
@@ -158,11 +157,6 @@ sumexp a b c = sumexp (tail(a)) (tail(b)) (c++(head(a) + head(b)):[])
 fexp :: [Integer] -> [Integer] -> Integer -> Integer
 fexp [] [] r = r
 fexp a b r = fexp (tail(a)) (tail(b)) (r*((head(a))^(head(b) `div` 2)))
-
--- fill0: fill of 0 the exponent factor list in matrix
-fill0 :: Int -> [Integer] -> [Integer]
-fill0 0 b = b
-fill0 n b = fill0 (n-1) (0:b)
 
 -- rgs reduce matrix with gauss algoritm. Start from bottom to top in search of first '1'
 rgs :: [(Integer,[Integer],Integer)] -> Int -> Int -> Int -> Int -> [(Integer,[Integer],Integer)] 
@@ -218,5 +212,11 @@ sols l i j c = do
 -- resolved matrix
 resolv :: [(Integer,[Integer],Integer)] -> Integer -> [Integer] -> [(Integer,Integer)]
 resolv l m bl = [rsv x m | x <- l, let rsv x m = (p,q) where p = (gcd (firi(x) - r) m); r = fexp bl (seci(x)) 1; q = m `div` p]
+
+-- glenr: get number of dec digits from r in list of solution
+glenr :: [(Integer,[Integer],Integer)] -> [Integer] -> [Integer]
+glenr [] r = r
+glenr l r = glenr (tail l) (lg:r) where lg = ceiling(logBase 10 (fromIntegral (firi(head(l)))))
+
 
  
