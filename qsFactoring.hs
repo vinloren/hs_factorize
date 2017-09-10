@@ -78,12 +78,9 @@ main = do
  let bf = getBl scn p2 []
  let rs = replE scn bf []
  let srt3 = sort3 rs (0,[0],(-1)) []
- let sol = rgs srt3 0 (length(scn)-1) (length bp) (length(scn)-1)
+ let sol = rgs n srt3 0 (length(scn)-1) (length bp) (length(scn)-1)
  putStr ("N. solutions: ")
  print (length sol)
--- let gl = glenr sol []
--- putStrLn "r length in dec. digits:"
--- print gl 
  red <- getCurrentTime
  putStr "Matrix reduced in "
  print (diffUTCTime red siev)

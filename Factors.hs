@@ -148,75 +148,74 @@ sort3 l mi r = sort3 t (0,[0],-1) (r++(m:[]))
 redux :: [(Integer,[Integer],Integer)] -> (Integer,[Integer],Integer) -> (Integer,[Integer],Integer) -> [(Integer,[Integer],Integer)]
 redux l j rp = sort3 ([ x | x <- l, x /= j]++rp:[]) (0,[0],(-1)) []
 
+
 -- sumexp: sum exp list of y factors element to element
 sumexp :: [Integer] -> [Integer] -> [Integer] -> [Integer]
 sumexp [] [] c = c
 sumexp a b c = sumexp (tail(a)) (tail(b)) (c++(head(a) + head(b)):[])
 
 -- fexp get sqrt of y by B factors exps/2 in matrix 
-fexp :: [Integer] -> [Integer] -> Integer -> Integer
-fexp [] [] r = r
-fexp a b r = fexp (tail(a)) (tail(b)) (r*((head(a))^(head(b) `div` 2)))
+fexp :: Integer -> [Integer] -> [Integer] -> Integer -> Integer
+fexp m [] [] r = r
+fexp m a b r = fexp m (tail(a)) (tail(b)) ((r*((head(a))^(head(b) `div` 2))) `mod` m)
+
 
 -- rgs reduce matrix with gauss algoritm. Start from bottom to top in search of first '1'
-rgs :: [(Integer,[Integer],Integer)] -> Int -> Int -> Int -> Int -> [(Integer,[Integer],Integer)] 
-rgs l i j c r = do
+rgs :: Integer -> [(Integer,[Integer],Integer)] -> Int -> Int -> Int -> Int -> [(Integer,[Integer],Integer)] 
+rgs n l i j c r = do
   if i == c
-    then sols l 0 0 c
+    then sols n l 0 0 c
     else do 
       let tg = trdi(l!!j)
       let x = (tg .&. (2^(c-i-1)))
       if x == 0
         then if j > 0
-          then rgs l i (j-1) c r
-          else rgs l (i+1) r c r
+          then rgs n l i (j-1) c r
+          else rgs n l (i+1) r c r
         else if j > i
         then do 
           let t = l!!(j-1)
           let t1 = l!!j
           let p = trdi(t1) 
           let q = trdi(t)
-          let b = (firi(t)*firi(t1),sumexp (seci(t1)) (seci(t)) [],(xor p q))  -- modificare seci(t1)*seci(t) in lista somma esponenti di fatt. y
+          let b = (((firi(t)*firi(t1)) `mod` n),sumexp (seci(t)) (seci(t1)) [],(xor p q))  
           let rdx = redux l t b
-          rgs rdx i j c r
-        else rgs l (i+1) r c r
+          rgs n rdx i j c r
+        else rgs n l (i+1) r c r
 
+multm :: Integer -> Integer -> Integer -> Integer
+multm a b n = (a*b) `mod` n
 
 -- sols: find solutions in the matrix received by rgs
-sols :: [(Integer,[Integer],Integer)] -> Int -> Int -> Int -> [(Integer,[Integer],Integer)]
-sols l i j c = do
+sols :: Integer -> [(Integer,[Integer],Integer)] -> Int -> Int -> Int -> [(Integer,[Integer],Integer)]
+sols n l i j c = do
   if i == c
     then [x | x <- l, trdi(x) == 0]
     else do
       let cl = 2^(c-i-1)
       let tg = (trdi(l!!j))
       if (cl .&. tg) > 0 && i == j
-        then sols l (i+1) (j+1) c
+        then sols n l (i+1) (j+1) c
         else if (cl .&. tg) == 0 && i == j
-          then sols l (i+1) j c
+          then sols n l (i+1) j c
           else if (cl .&. tg) == 0 && i /= j
-            then sols l (i+1) j c
+            then sols n l (i+1) j c
             else if i < c 
               then do
                 let tg1 = (trdi(l!!(j+1)))
                 if (cl .&. tg1) > 0
                   then do
                     let a = (firi(l!!j),seci(l!!j),tg)
-                    let b = (firi(l!!j)*firi(l!!(j+1)),sumexp (seci(l!!j)) (seci(l!!(j+1))) [],(xor tg tg1))
+                    let b = ((firi(l!!j)*firi(l!!(j+1)) `mod` n),sumexp (seci(l!!j)) (seci(l!!(j+1))) [], (xor tg tg1))
                     let rdx = redux l a b
-                    sols rdx i j c
-                else sols l (i+1) (j+1) c
-            else sols l (i+1) (j+1) c
+                    sols n rdx i j c
+                else sols n l (i+1) (j+1) c
+            else sols n l (i+1) (j+1) c
    
 -- find the factors p,q of the target semi prime. l is list of (r, r^2-y, exps) from 
 -- resolved matrix
 resolv :: [(Integer,[Integer],Integer)] -> Integer -> [Integer] -> [(Integer,Integer)]
-resolv l m bl = [rsv x m | x <- l, let rsv x m = (p,q) where p = (gcd (firi(x) - r) m); r = fexp bl (seci(x)) 1; q = m `div` p]
-
--- glenr: get number of dec digits from r in list of solution
-glenr :: [(Integer,[Integer],Integer)] -> [Integer] -> [Integer]
-glenr [] r = r
-glenr l r = glenr (tail l) (lg:r) where lg = ceiling(logBase 10 (fromIntegral (firi(head(l)))))
+resolv l m bl = [rsv x m | x <- l, let rsv x m = (p,q) where p = gcd (abs(firi(x) - r)) m; r = fexp m bl (seci(x)) 1; q = m `div` p]
 
 
  
