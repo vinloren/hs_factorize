@@ -51,22 +51,24 @@ main = do
  putStr "Semi prime: "
  print (show n)
  let b = log (fromIntegral n)
- let f = 0.45
+ let f = 0.52
  let sqb = f * sqrt (b)
  let lgb = sqrt (log (b))
 -- print lgb
  let bsz = round (exp (sqb * lgb))
- let lgbsz = log (exp (sqb * lgb))
- let nf = round((fromIntegral bsz) / lgbsz)
- putStr "Max B : "
+-- let lgbsz = log (exp (sqb * lgb))
+-- let nf = round((fromIntegral bsz) / lgbsz)
+ putStr "Max B: "
  print bsz
- putStr "Num factors:"
- print nf
- let bp = take nf (filtB (fndPrimes [2..2*bsz] []) n)
+ let bp = filtB (fndPrimes [2..bsz] []) n
+-- putStr "Num factors:"
+-- print nf
+-- let bp = take nf (filtB (fndPrimes [2..2*bsz] []) n)
+ putStrLn ("B factors len: "++(show (length bp)))
  print bp
  start <- getCurrentTime
  let r = radix n 2 0
- let scn = scany n r bp 1 (2*r) (length bp) []
+ let scn = scany n r bp 1 (length bp) []
  putStrLn "Scanned sieve:"
  print (length(scn))
 -- print scn

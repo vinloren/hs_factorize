@@ -60,13 +60,13 @@ tsmth n e bl rl = if n `mod` head(bl) == 0
 -- are mod 2 for eventual matrix reduction, n is the semi-prime from which
 -- y = rn^2 - n is got from, bl is the B primes list, s is the smooth y
 -- when found, d is the incremet to radix, top is the limit scan, 
-scany :: Integer -> Integer -> [Integer] -> Integer -> Integer -> Int -> [(Integer,[Integer],[Integer])] -> [(Integer,[Integer],[Integer])]
-scany n r bl d top cnt rs = 
-  if d > top || cnt < 0
+scany :: Integer -> Integer -> [Integer] -> Integer -> Int -> [(Integer,[Integer],[Integer])] -> [(Integer,[Integer],[Integer])]
+scany n r bl d cnt rs = 
+  if y > n || cnt < 0
     then rs 
     else if s /= [] 
-      then scany n r bl (d+1) top (cnt-1) rs++(r+d,s,(map (`mod` 2) s)):[]
-      else scany n r bl (d+1) top cnt rs
+      then scany n r bl (d+1) (cnt-1) rs++(r+d,s,(map (`mod` 2) s)):[]
+      else scany n r bl (d+1) cnt rs
     where 
       y=(r+d)^2 - n
       s = tsmth y 0 bl []
