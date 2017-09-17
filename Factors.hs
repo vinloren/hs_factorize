@@ -62,7 +62,7 @@ tsmth n e bl rl = if n `mod` head(bl) == 0
 -- when found, d is the incremet to radix, top is the limit scan, 
 scany :: Integer -> Integer -> [Integer] -> Integer -> Int -> [(Integer,[Integer],[Integer])] -> [(Integer,[Integer],[Integer])]
 scany n r bl d cnt rs = 
-  if y > n || cnt < 0
+  if y > 2*n || cnt < 0
     then rs 
     else if s /= [] 
       then scany n r bl (d+1) (cnt-1) rs++(r+d,s,(map (`mod` 2) s)):[]
