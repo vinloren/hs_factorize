@@ -55,15 +55,15 @@ factP' n k s = if g == 1 || g == n
    g = gcd r n
 
 getopt = do 
-  putStrLn "1) gimme semi-prime\n2) generate semi-prime"
+  putStrLn "1) gimme semi-prime then run k!\n2) gimme semi-prime then run B primes\n3) gen semi-prime then run k!\n4) gen semi-prime then run B primes"  
   s <-getLine
-  if s == "1" 
+  if s == "1" || s == "2"
     then do 
       putStrLn "Gimme semi-prime"
       inp <- getLine
       let n = read(inp)
-      return n
-    else if s /= "2"
+      return (n,s)
+    else if s /= "3" && s /= "4"
       then getopt
       else do
        putStrLn "Decimal digits for the two primes to be generated?"
@@ -78,19 +78,24 @@ getopt = do
        let q =  if nu `mod` 2 == 1 then nu else nu + 1
        let fact2 = findPrime q
        let n = fact1*fact2
-       return n
+       return (n,s)
        
        
 main = do
- n <- getopt
+ opt <- getopt
+ let n = fst(opt)
+ let ty = snd(opt)
  putStr "Semi prime: "
  print (show n)
  start <- getCurrentTime
---let pq = factP n 2 1
- let primes = fndPrimes [2..floor(8*sqrt (fromIntegral n))] []  
--- print primes
- let pq = factP' n primes 1
- print pq
+ if ty == "1" || ty == "3"
+   then do 
+     let pq = factP n 2 1
+     print pq
+   else do 
+     let primes = fndPrimes [2..floor(8*sqrt (fromIntegral n))] [] 
+     let pq = factP' n primes 1
+     print pq
  end <- getCurrentTime
  putStr "Factors found in "
  print (diffUTCTime end start)
