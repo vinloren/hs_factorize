@@ -39,7 +39,7 @@ factP n k f = if (g == n)
     then factP n (k+1) ((k*f) `mod` n)
     else (g,n `div` g,k)
   where 
-    r = 2^(k*f)
+    r = (2^k `mod` n)*(2^f `mod` n)
     g = gcd (r-1) n
     
 factP' :: Integer -> [Integer] -> Integer -> (Integer,Integer,Integer)
@@ -51,7 +51,7 @@ factP' n k s = if g == 1 || g == n
    h = head k
    lgk = floor(logBase(fromIntegral h) (fromIntegral(n)))
    m = s*lgk*h
-   r = (2^m `mod` n) - 1
+   r = (2^s `mod` n)*(2^lgk `mod` n)*(2^h `mod` n) - 1
    g = gcd r n
 
 getopt = do 
@@ -87,7 +87,7 @@ main = do
  print (show n)
  start <- getCurrentTime
 --let pq = factP n 2 1
- let primes = fndPrimes [2..1000] [] -- floor(0.5 * sqrt (fromIntegral n))
+ let primes = fndPrimes [2..floor(8*sqrt (fromIntegral n))] []  
 -- print primes
  let pq = factP' n primes 1
  print pq
