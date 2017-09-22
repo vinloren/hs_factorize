@@ -54,16 +54,86 @@ factP' n k s = if g == 1 || g == n
    r = (2^s `mod` n)*(2^lgk `mod` n)*(2^h `mod` n) - 1
    g = gcd r n
 
+
+-- SQFOF algoritm
+sqfof n = do
+  let k = [1,2,3,5,7,11,13,17,19,3*5,3*7,3*11,5*7,5*11,7*11,3*5*11,3*7*11,3*5*7*11]
+      s = sqrt (fromIntegral n)
+      l = 3*floor(sqrt 2*s)
+      p = radix ((head k)*n) 2 0
+      q = ((head k)*n)-p^2
+      i = 2
+      res = sqfr n k l p (p,p) (1,q) i
+  print res
+      
+      
+sqfr :: Integer -> [Integer] -> Integer -> Integer -> (Integer,Integer) -> (Integer,Integer) -> Integer -> (Integer,Integer)
+sqfr n [] l p0 p q 7 = (0,0)
+sqfr n k l p0 p q i = if (i < l)
+  then do 
+    let b = (p0+snd(p)) `div` snd(q)
+        p1 = b*snd(q) - snd(p)
+        qp = snd(q)
+        q1 = fst(q) + b*(snd(p) - p1)
+    if (isSqre q1)
+      then do
+        let qp2 = radix q1 2 0
+            b1 = (p0 - p1) `div` qp2
+            p2 = b1*qp2 + p1
+            pp1 = p2
+            q2 = ((head k)*n - pp1^2) `div` qp2
+        sqfofr k n p0 p2 pp1 qp2 q2
+      else sqfr n k l p0 (snd(p),p1) (qp,q1) (i+1) 
+  else sqfr n (tail k) l p01 (p01,p01) (1,(kn-(p01^2))) 2 
+  where
+    p01 = radix ((head k)*n) 2 0
+    kn = (head k)*n
+    
+    
+sqfofr :: [Integer] -> Integer -> Integer -> Integer -> Integer -> Integer -> Integer -> (Integer,Integer)
+sqfofr k n p0 p pp qp q = do
+  let b = (p0+p) `div` q
+      pp1 = p
+      p1 = b*q - p
+      qp1 = q
+      q1 = qp + b*(pp1 - p1)
+  if (p1 /= pp1)
+    then sqfofr k n p0 p1 pp1 qp1 q1
+    else do 
+      let g = gcd n qp1
+      if g == 1
+        then do
+          let k1 = tail k
+          if k1 == []
+            then (0,0)
+            else do
+              let pn = radix ((head k1)*n) 2 0
+              let qn = ((head k1)*n)-pn^2
+              sqfr n k1 (3*floor(sqrt 2*sqrt (fromIntegral n))) pn (pn,pn) (1,qn) 2
+        else (g,n `div` (g))
+ 
+
+-- isSqre: test if a Integer is a square.
+isSqre :: Integer -> Bool
+isSqre i = if (i == r*r) then True else False where r = (radix i 2 0)
+
+radix :: Integer -> Integer -> Integer -> Integer
+radix n r1 r2 = if abs(r1-r2) > 1 then (radix n ((r1+(n `div` r1)) `div` 2) (n `div` r1)) else r1
+
+-- END SQFOF
+
+
 getopt = do 
-  putStrLn "1) gimme semi-prime then run k!\n2) gimme semi-prime then run B primes\n3) gen semi-prime then run k!\n4) gen semi-prime then run B primes"  
+  putStr "1) gimme semi-prime then run k!\n2) gimme semi-prime then run B primes\n3) gen semi-prime then run k!\n"
+  putStrLn "4) gen semi-prime then run B primes\n5) gimme semi-prime then run sqfof\n6) gen semi-prime then run sqfof"  
   s <-getLine
-  if s == "1" || s == "2"
+  if s == "1" || s == "2" || s == "5"
     then do 
       putStrLn "Gimme semi-prime"
       inp <- getLine
       let n = read(inp)
       return (n,s)
-    else if s /= "3" && s /= "4"
+    else if s /= "3" && s /= "4" && s /= "6" 
       then getopt
       else do
        putStrLn "Decimal digits for the two primes to be generated?"
@@ -92,10 +162,12 @@ main = do
    then do 
      let pq = factP n 2 1
      print pq
-   else do 
-     let primes = fndPrimes [2..floor(8*sqrt (fromIntegral n))] [] 
-     let pq = factP' n primes 1
-     print pq
+   else if ty == "1" || ty == "3" 
+     then do 
+       let primes = fndPrimes [2..floor(8*sqrt (fromIntegral n))] [] 
+       let pq = factP' n primes 1
+       print pq
+     else sqfof n
  end <- getCurrentTime
  putStr "Factors found in "
  print (diffUTCTime end start)
