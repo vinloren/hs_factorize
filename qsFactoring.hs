@@ -51,7 +51,7 @@ main = do
  putStr "Semi prime: "
  print (show n)
  let b = log (fromIntegral n)
- let f = 0.52
+ let f = if n < 10^9 then 0.63 else if n < 10^13 then 0.58 else if n < 10^16 then 0.56 else if n < 10^19 then 0.52 else 0.51
  let sqb = f * sqrt (b)
  let lgb = sqrt (log (b))
 -- print lgb

@@ -80,7 +80,7 @@ sqfr n k l p0 p q i = if (i < l)
       else if (isSqre q1)
        then do
         let r = radix q1 2 0
-            qp2 = if (mod r 2) == 0 then r `div` 2 else r
+            qp2 = r  -- if (mod r 2) == 0 then r `div` 2 else
             b1 = (p0 - p1) `div` qp2
             p2 = b1*qp2 + p1
             pp1 = p2
