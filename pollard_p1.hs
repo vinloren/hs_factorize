@@ -57,7 +57,7 @@ factP' n k s = if g == 1 || g == n
 
 -- SQFOF algoritm
 sqfof n = do
-  let k = [1,2,3,5,7,11,13,17,19,3*5,3*7,3*11,5*7,5*11,7*11,3*5*11,3*7*11,3*5*7*11]
+  let k = [1,2,3,5,7,11,13,17,19] -- ,3*5,3*7,3*11,5*7,5*11,7*11,3*5*11,3*7*11,3*5*7*11
       s = sqrt (fromIntegral n)
       l = 3*floor(sqrt 2*s)
       p = radix ((head k)*n) 2 0
@@ -67,30 +67,33 @@ sqfof n = do
   print res
       
       
-sqfr :: Integer -> [Integer] -> Integer -> Integer -> (Integer,Integer) -> (Integer,Integer) -> Integer -> (Integer,Integer)
-sqfr n [] l p0 p q 7 = (0,0)
+sqfr :: Integer -> [Integer] -> Integer -> Integer -> (Integer,Integer) -> (Integer,Integer) -> Integer -> (Integer,Integer,Integer)
+sqfr n [] l p0 p q i = (0,0,i)
 sqfr n k l p0 p q i = if (i < l)
   then do 
     let b = (p0+snd(p)) `div` snd(q)
         p1 = b*snd(q) - snd(p)
         qp = snd(q)
         q1 = fst(q) + b*(snd(p) - p1)
-    if (isSqre q1)
-      then do
-        let qp2 = radix q1 2 0
+    if (mod i 2) == 1
+      then sqfr n k l p0 (snd(p),p1) (qp,q1) (i+1)
+      else if (isSqre q1)
+       then do
+        let r = radix q1 2 0
+            qp2 = if (mod r 2) == 0 then r `div` 2 else r
             b1 = (p0 - p1) `div` qp2
             p2 = b1*qp2 + p1
             pp1 = p2
             q2 = ((head k)*n - pp1^2) `div` qp2
         sqfofr k n p0 p2 pp1 qp2 q2
-      else sqfr n k l p0 (snd(p),p1) (qp,q1) (i+1) 
+       else sqfr n k l p0 (snd(p),p1) (qp,q1) (i+1) 
   else sqfr n (tail k) l p01 (p01,p01) (1,(kn-(p01^2))) 2 
   where
     p01 = radix ((head k)*n) 2 0
     kn = (head k)*n
     
     
-sqfofr :: [Integer] -> Integer -> Integer -> Integer -> Integer -> Integer -> Integer -> (Integer,Integer)
+sqfofr :: [Integer] -> Integer -> Integer -> Integer -> Integer -> Integer -> Integer -> (Integer,Integer,Integer)
 sqfofr k n p0 p pp qp q = do
   let b = (p0+p) `div` q
       pp1 = p
@@ -105,13 +108,13 @@ sqfofr k n p0 p pp qp q = do
         then do
           let k1 = tail k
           if k1 == []
-            then (0,0)
+            then (0,0,0)
             else do
               let pn = radix ((head k1)*n) 2 0
               let qn = ((head k1)*n)-pn^2
               sqfr n k1 (3*floor(sqrt 2*sqrt (fromIntegral n))) pn (pn,pn) (1,qn) 2
-        else (g,n `div` (g))
- 
+        else (g,n `div` (g),head k)
+
 
 -- isSqre: test if a Integer is a square.
 isSqre :: Integer -> Bool
