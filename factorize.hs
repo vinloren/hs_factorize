@@ -55,6 +55,9 @@ main = do
    then do 
      let pq = factP n 2 1
      print pq
+     end <- getCurrentTime
+     putStr "Factors found in "
+     print (diffUTCTime end start)
    else if ty == "2" || ty == "4" 
      then do 
        let primes = fndPrimes [2..floor(8*sqrt (fromIntegral n))] [] 
