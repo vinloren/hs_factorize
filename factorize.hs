@@ -55,23 +55,13 @@ main = do
    then do 
      let pq = factP n 2 1
      print pq
-     end <- getCurrentTime
-     putStr "Factors found in "
-     print (diffUTCTime end start)
    else if ty == "2" || ty == "4" 
      then do 
        let primes = fndPrimes [2..floor(8*sqrt (fromIntegral n))] [] 
        let pq = factP' n primes 1
        print pq
-       end <- getCurrentTime
-       putStr "Factors found in "
-       print (diffUTCTime end start)
      else if ty == "5" || ty == "6" 
-       then do 
-         sqfof n
-         end <- getCurrentTime
-         putStr "Factors found in "
-         print (diffUTCTime end start)
+       then sqfof n
        else do 
          let b = log (fromIntegral n)
          let f = if n < 10^9 then 0.63 else if n < 10^13 then 0.58 else if n < 10^16 then 0.56 else if n < 10^19 then 0.52 else 0.51
@@ -104,6 +94,6 @@ main = do
          let rslt = (resolv sol n bp)
          putStr "found (p,q): "
          print rslt 
-         end <- getCurrentTime
-         putStr "Factors found in "
-         print (diffUTCTime end start)
+ end <- getCurrentTime
+ putStr "Factors found in "
+ print (diffUTCTime end start)
