@@ -64,7 +64,7 @@ main = do
        then sqfof n
        else do 
          let b = log (fromIntegral n)
-         let f = if n < 10^9 then 0.63 else if n < 10^13 then 0.58 else if n < 10^16 then 0.56 else if n < 10^19 then 0.52 else 0.51
+         let f = if n < 10^9 then 0.63 else if n < 10^13 then 0.58 else if n < 10^16 then 0.56 else if n < 10^19 then 0.52 else if n < 10^22 then 0.51 else 0.49
          let sqb = f * sqrt (b)
          let lgb = sqrt (log (b))
          let bsz = round (exp (sqb * lgb))
@@ -72,7 +72,7 @@ main = do
          print bsz
          let bp = filtB (fndPrimes [2..bsz] []) n
          putStrLn ("B factors len: "++(show (length bp)))
-         print bp
+--       print bp
          let r = radix n 2 0
          let scn = scany n r bp 1 (length bp) []
          putStrLn "Scanned sieve:"

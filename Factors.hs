@@ -160,7 +160,7 @@ sumexp a b c = sumexp (tail(a)) (tail(b)) (c++(head(a) + head(b)):[])
 -- fexp get sqrt of y by B factors exps/2 in matrix 
 fexp :: Integer -> [Integer] -> [Integer] -> Integer -> Integer
 fexp m [] [] r = r
-fexp m a b r = fexp m (tail(a)) (tail(b)) ((r*((head(a))^(head(b) `div` 2))) `mod` m)
+fexp m a b r = fexp m (tail(a)) (tail(b)) (r*(powm (head(a)) (head(b) `div` 2) m 1) `mod` m)
 
 
 -- rgs reduce matrix with gauss algoritm. Start from bottom to top in search of first '1'
