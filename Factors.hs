@@ -306,4 +306,54 @@ factP' n k s = if g == 1 || g == n
    g = gcd r n
 
 
- 
+-- elliptic curve factorization algorithm
+
+-- px2: multiply P by 2 using tangent to P in y^2 = x^3 + ax + 1 to intersect the cubic function
+-- in new point (x3, y3)
+px2 :: Integer -> Integer -> Integer -> Integer -> (Integer,Integer)
+px2 n a x1 y1 = (x3,y3) where
+  invy = findD (2*y1) n 
+  la = (3*x1^2 + a) * invy
+  x3 = (la^2 - 2*x1)  `mod` n
+  y3 = mod (la * (x1-x3) - y1) n
+
+-- p + q sum two points 
+p_q :: Integer -> Integer -> Integer -> Integer -> Integer -> Integer -> (Integer,Integer)
+p_q n a x1 x2 y1 y2 = (x3,y3) where
+  invx = findD (x1-x2) n
+  la = mod (invx * (y1-y2)) n
+  x3 = mod (la^2 -x1 -x2) n
+  y3 = mod (la * (x1 - x3) -y1) n
+  
+-- Le funzioni per trovare d = c^-1 mod n Extended euclidean algorithm. The result is a list of 
+-- couples (q,r),(d,D) from (q,1),(D,d) up to (q,r),(n,c)
+-- dati c e phi trova reciproco di 'c' che sarà espèonente di decifratura 'd'
+findD :: Integer -> Integer -> Integer
+findD c n = invM res (length(res)) 1 1 where res = (findEu [] n c)
+
+extEu :: [(Integer,Integer)] -> Integer -> Integer -> [(Integer,Integer)]
+extEu a m c = ((getQR m c):(m,c):a) 
+
+-- Get the list of divisors / dividends / remainder of the eucliden gcd algorithm
+findEu :: [(Integer,Integer)] -> Integer -> Integer ->  [(Integer,Integer)]
+findEu a _ 0 = [(0,0)]
+findEu a _ 1 = a
+findEu a m c = findEu res (snd (res !! 1)) (snd (res !! 0)) where res = (extEu a m c)
+
+-- Get quotient and remainder of a / b
+getQR :: Integer -> Integer -> (Integer,Integer)
+getQR a b = ((a `div` b),(a `mod` b))
+            
+-- Find out module inverse c of n (c^-1 mod n) analyzing the resulting couples in list a gotten  
+-- from findEu applied to n and c . The list of couples (q,r),(D,d) is scanned backwards from 
+-- the last two double couples starting from the last equation that includes phi,c. The reduction 
+-- works step by step until the list is void in which case we got the solution c*c^-1 = 1 (c^-1 = decipher exp)
+invM ::  [(Integer,Integer)] -> Int -> Integer -> Integer -> Integer
+invM a l r0 r1
+    | (length a) == 2 = (-(fst (a!!0))+(fst (a!!1))) `mod` (fst(a!!1))
+    | l == (length(a)) = (invM a (l-4) (-(fst(a!!(l-2)))*(-1)*(fst((a!!(l-4))))+1) (-(fst(a!!(l-2))))) 
+    | l == 0 = ((r0 + (fst(a!!(length(a)-1)))) `mod` ((fst(a!!(length(a)-1)))))
+    | otherwise = (invM a (l-2) (-(fst(a!!(l-2)))*r0+r1) r0)
+-- fine gruppo di 4 funzioni
+
+-- end elliptic curve factorization algorithm 
