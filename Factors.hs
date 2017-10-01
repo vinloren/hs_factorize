@@ -308,13 +308,60 @@ factP' n k s = if g == 1 || g == n
 
 -- elliptic curve factorization algorithm
 
+-- find lcm [1..B] where B = (logBase(10) n)^2 / 2
+lcmB :: Integer -> Integer
+lcmB n = do 
+  let lg = floor(logBase(10) (fromIntegral(n))) 
+      l = div (lg^2) 2
+      m = fndPrimes [2..l] []
+  powp m n l 1
+      
+powp :: [Integer] -> Integer -> Integer -> Integer -> Integer
+powp [] n b r = r
+powp m n b r = powp (tail m) n b (r*p) where
+  e = floor(logBase(fromIntegral (head m)) (fromIntegral(b)))
+  p = (head m)^e
+
+-- ecm try factorize n via elliptic curve method
+ecm :: Integer -> (Integer,Integer)
+ecm n = do
+  if mod n 31 == 0 
+    then (div n 31, div n (div n 31))  -- 31 = 4a^3+27b^2 where a=1, b=1, if 31 divides n then done.
+    else do
+      let k = lcmB n 
+          x1 = 1
+          y1 = 1
+          a = 1
+      ecm2 n k a (x1,y1) (x1,y1) []
+    
+
+-- ecm2
+ecm2 :: Integer -> Integer -> Integer -> (Integer,Integer) -> (Integer,Integer) -> [(Integer,Integer)] -> (Integer,Integer)
+ecm2 n k a p1 p2 r =
+  if k > 0
+    then if gy > 1
+      then (gy, div n gy)
+      else if (mod k 2) == 0
+        then ecm2 n (div k 2) a r1 r1 r
+        else ecm2 n (div k 2) a r1 r1 (r++p1:[])
+  else if (length r) > 1
+    then if gx == 1
+      then ecm2 n k a pr p2 (pr:(tail (tail r)))
+      else (gx, div n gx)
+    else (0,0)
+  where
+    r1 = px2 n a (fst p1) (snd p1)
+    gx = gcd ((fst (r!!0))-(fst (r!!1))) n
+    gy = gcd (2*(snd p1)) n 
+    pr = p_q n a (fst (r!!0)) (fst (r!!1)) (snd (r!!0)) (snd (r!!1))
+    
 -- px2: multiply P by 2 using tangent to P in y^2 = x^3 + ax + 1 to intersect the cubic function
 -- in new point (x3, y3)
 px2 :: Integer -> Integer -> Integer -> Integer -> (Integer,Integer)
 px2 n a x1 y1 = (x3,y3) where
   invy = findD (2*y1) n 
   la = (3*x1^2 + a) * invy
-  x3 = (la^2 - 2*x1)  `mod` n
+  x3 = (la^2 - 2*x1) `mod` n
   y3 = mod (la * (x1-x3) - y1) n
 
 -- p + q sum two points 
