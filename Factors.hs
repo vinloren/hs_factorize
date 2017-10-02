@@ -16,6 +16,7 @@ module Factors
 , factP
 , factP'
 , sqfof
+, ecm
 ) where
 
 import Data.Bits
@@ -328,19 +329,17 @@ ecm n a = do
   if a == [] 
    then (0,0)
    else if gcd n d > 1
-    then (div n d, div n (div n d))  -- d = 4a^3+27b^2 where a=1, b=-1
+    then (div n d, div n (div n d))  -- d = 4a^3+27b^2 where a=1, b=1
     else do
       let k = lcmB n 
-          x1 = 0
+          x1 = 1
           y1 = 1
           rs = ecm2 n k (head a) (x1,y1) (x1,y1) []
       if rs /= (0,0) 
         then rs
-        else if a == [] 
-          then (0,0)
-          else ecm n (tail a)
+        else ecm n (tail a)
    where 
-    b = (-1)
+    b = 1
     d = 4*(head a)^3 + 27*b^2 
 
 -- ecm2

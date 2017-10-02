@@ -18,15 +18,15 @@ testa xs = head xs
 getopt = do 
   putStr "1) gimme semi-prime then run k!\n2) gimme semi-prime then run B primes\n3) gen semi-prime then run k!\n"
   putStr "4) gen semi-prime then run B primes\n5) gimme semi-prime then run sqfof\n6) gen semi-prime then run sqfof\n"  
-  putStrLn "7) gimme semi-prime then run qs\n8) gen semi-prime then run qs"
+  putStrLn "7) gimme semi-prime then run qs\n8) gen semi-prime then run qs\n9) gimme semi-prime then run ecm\n10) gen semi-prime then run ecm"
   s <-getLine
-  if s == "1" || s == "2" || s == "5" || s == "7"
+  if s == "1" || s == "2" || s == "5" || s == "7" || s == "9"
     then do 
       putStrLn "Gimme semi-prime"
       inp <- getLine
       let n = read(inp)
       return (n,s)
-    else if s /= "3" && s /= "4" && s /= "6" && s /= "8"
+    else if s /= "3" && s /= "4" && s /= "6" && s /= "8" && s /= "10"
       then getopt
       else do
        putStrLn "Decimal digits for the two primes to be generated?"
@@ -62,7 +62,11 @@ main = do
        print pq
      else if ty == "5" || ty == "6" 
        then sqfof n
-       else do 
+       else if ty == "9" || ty == "10" 
+        then do
+          let rs = ecm n (fndPrimes [2..5001] [])
+          print rs
+        else do 
          let b = log (fromIntegral n)
          let f = if n < 10^9 then 0.63 else if n < 10^13 then 0.58 else if n < 10^16 then 0.56 else if n < 10^19 then 0.52 else if n < 10^22 then 0.51 else 0.49
          let sqb = f * sqrt (b)
