@@ -325,7 +325,9 @@ powp m n b r = powp (tail m) n b (r*p) where
 -- ecm try factorize n via elliptic curve method
 ecm :: Integer -> [Integer] -> (Integer,Integer)
 ecm n a = do
-  if gcd n d > 1
+  if a == [] 
+   then (0,0)
+   else if gcd n d > 1
     then (div n d, div n (div n d))  -- d = 4a^3+27b^2 where a=1, b=-1
     else do
       let k = lcmB n 
