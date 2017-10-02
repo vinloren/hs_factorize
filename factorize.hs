@@ -16,9 +16,9 @@ testa xs = head xs
 
 
 getopt = do 
-  putStr "1) gimme semi-prime then run k!\n2) gimme semi-prime then run B primes\n3) gen semi-prime then run k!\n"
-  putStr "4) gen semi-prime then run B primes\n5) gimme semi-prime then run sqfof\n6) gen semi-prime then run sqfof\n"  
-  putStrLn "7) gimme semi-prime then run qs\n8) gen semi-prime then run qs\n9) gimme semi-prime then run ecm\n10) gen semi-prime then run ecm"
+  putStr " 1) gimme semi-prime then run k!\n 2) gimme semi-prime then run B primes\n 3) gen semi-prime then run k!\n"
+  putStr " 4) gen semi-prime then run B primes\n 5) gimme semi-prime then run sqfof\n 6) gen semi-prime then run sqfof\n"  
+  putStrLn " 7) gimme semi-prime then run qs\n 8) gen semi-prime then run qs\n 9) gimme semi-prime then run ecm\n10) gen semi-prime then run ecm"
   s <-getLine
   if s == "1" || s == "2" || s == "5" || s == "7" || s == "9"
     then do 
@@ -64,7 +64,7 @@ main = do
        then sqfof n
        else if ty == "9" || ty == "10" 
         then do
-          let rs = ecm n (fndPrimes [2..5001] [])
+          let rs = ecm n [1..25001]
           print rs
         else do 
          let b = log (fromIntegral n)
