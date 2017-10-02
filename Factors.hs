@@ -323,17 +323,23 @@ powp m n b r = powp (tail m) n b (r*p) where
   p = (head m)^e
 
 -- ecm try factorize n via elliptic curve method
-ecm :: Integer -> (Integer,Integer)
-ecm n = do
-  if mod n 31 == 0 
-    then (div n 31, div n (div n 31))  -- 31 = 4a^3+27b^2 where a=1, b=1, if 31 divides n then done.
+ecm :: Integer -> [Integer] -> (Integer,Integer)
+ecm n a = do
+  if gcd n d > 1
+    then (div n d, div n (div n d))  -- d = 4a^3+27b^2 where a=1, b=-1
     else do
       let k = lcmB n 
-          x1 = 1
+          x1 = 0
           y1 = 1
-          a = 1
-      ecm2 n k a (x1,y1) (x1,y1) []
-    
+          rs = ecm2 n k (head a) (x1,y1) (x1,y1) []
+      if rs /= (0,0) 
+        then rs
+        else if a == [] 
+          then (0,0)
+          else ecm n (tail a)
+   where 
+    b = (-1)
+    d = 4*(head a)^3 + 27*b^2 
 
 -- ecm2
 ecm2 :: Integer -> Integer -> Integer -> (Integer,Integer) -> (Integer,Integer) -> [(Integer,Integer)] -> (Integer,Integer)
@@ -367,7 +373,7 @@ px2 n a x1 y1 = (x3,y3) where
 -- p + q sum two points 
 p_q :: Integer -> Integer -> Integer -> Integer -> Integer -> Integer -> (Integer,Integer)
 p_q n a x1 x2 y1 y2 = (x3,y3) where
-  invx = findD (x1-x2) n
+  invx = if x1 > x2 then findD (x1-x2) n else findD (x2-x1) n
   la = mod (invx * (y1-y2)) n
   x3 = mod (la^2 -x1 -x2) n
   y3 = mod (la * (x1 - x3) -y1) n
