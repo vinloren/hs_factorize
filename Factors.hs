@@ -312,8 +312,8 @@ factP' n k s = if g == 1 || g == n
 -- find lcm [1..B] where B = (logBase(10) n)^2 / 2
 lcmB :: Integer -> Integer
 lcmB n = do 
-  let lg = floor(logBase(10) (fromIntegral(n)))  -- 0.5 * log (fromIntegral(n)) * log (log (fromIntegral(n)))  
-      l = div (lg^2) 2 -- floor(exp (sqrt(lg)))  
+  let lg = round(logBase(10) (fromIntegral(n)))  -- 0.5 * log (fromIntegral(n)) * log (log (fromIntegral(n)))  
+      l = div (lg^2) 1 -- floor(exp (sqrt(lg)))  
       m = fndPrimes [2..l] []
   powp m n l 1
       
