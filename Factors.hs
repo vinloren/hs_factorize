@@ -312,8 +312,8 @@ factP' n k s = if g == 1 || g == n
 -- find lcm [1..B] where B = (logBase(10) n)^2 / 2
 lcmB :: Integer -> Integer
 lcmB n = do 
-  let lg = floor(logBase(10) (fromIntegral(n))) 
-      l = div (lg^2) 2
+  let lg = floor(logBase(10) (fromIntegral(n)))  -- 0.5 * log (fromIntegral(n)) * log (log (fromIntegral(n)))  
+      l = div (lg^2) 2 -- floor(exp (sqrt(lg)))  
       m = fndPrimes [2..l] []
   powp m n l 1
       
@@ -346,15 +346,19 @@ ecm n a = do
 ecm2 :: Integer -> Integer -> Integer -> (Integer,Integer) -> (Integer,Integer) -> [(Integer,Integer)] -> (Integer,Integer)
 ecm2 n k a p1 p2 r =
   if k > 0
-    then if gy > 1
+    then if gy > 1 && gy < n
       then (gy, div n gy)
-      else if (mod k 2) == 0
+      else if gy == n   
+       then (0,0)
+       else if (mod k 2) == 0
         then ecm2 n (div k 2) a r1 r1 r
         else ecm2 n (div k 2) a r1 r1 (r++p1:[])
   else if (length r) > 1
     then if gx == 1
       then ecm2 n k a pr p2 (pr:(tail (tail r)))
-      else (gx, div n gx)
+      else if gx == n   
+       then (0,0)
+       else (gx, div n gx)
     else (0,0)
   where
     r1 = px2 n a (fst p1) (snd p1)
@@ -374,8 +378,8 @@ px2 n a x1 y1 = (x3,y3) where
 -- p + q sum two points 
 p_q :: Integer -> Integer -> Integer -> Integer -> Integer -> Integer -> (Integer,Integer)
 p_q n a x1 x2 y1 y2 = (x3,y3) where
-  invx = if x1 > x2 then findD (x1-x2) n else findD (x2-x1) n
-  la = mod (invx * (y1-y2)) n
+  invx = if (x2-x1) < 0 then (-1)*findD (abs(x2-x1)) n else findD (abs(x2-x1)) n
+  la = mod (invx * (y2-y1)) n
   x3 = mod (la^2 -x1 -x2) n
   y3 = mod (la * (x1 - x3) -y1) n
   
