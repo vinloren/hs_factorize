@@ -313,7 +313,7 @@ factP' n k s = if g == 1 || g == n
 lcmB :: Integer -> Integer
 lcmB n = do 
   let lg = round(logBase(10) (fromIntegral(n)))  -- 0.5 * log (fromIntegral(n)) * log (log (fromIntegral(n)))  
-      l = div (lg^2) 1 -- floor(exp (sqrt(lg)))  
+      l = (lg^2)*8  -- floor(exp (sqrt(lg)))  
       m = fndPrimes [2..l] []
   powp m n l 1
       
@@ -332,7 +332,7 @@ ecm n a = do
     then (div n d, div n (div n d))  -- d = 4a^3+27b^2 where a=1, b=1
     else do
       let k = lcmB n 
-          x1 = 1
+          x1 = 0
           y1 = 1
           rs = ecm2 n k (head a) (x1,y1) (x1,y1) []
       if rs /= (0,0) 

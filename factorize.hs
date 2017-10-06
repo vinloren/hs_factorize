@@ -64,7 +64,7 @@ main = do
        then sqfof n
        else if ty == "9" || ty == "10" 
         then do
-          let rs = ecm n [1..4097]
+          let rs = ecm n [1..511]
           print rs
         else do 
          let b = log (fromIntegral n)
