@@ -17,6 +17,7 @@ module Factors
 , factP'
 , sqfof
 , ecm
+, lcmB
 ) where
 
 import Data.Bits
@@ -313,7 +314,7 @@ factP' n k s = if g == 1 || g == n
 lcmB :: Integer -> Integer
 lcmB n = do 
   let lg = round(logBase(10) (fromIntegral(n)))  -- 0.5 * log (fromIntegral(n)) * log (log (fromIntegral(n)))  
-      l = (lg^2)*8  -- floor(exp (sqrt(lg)))  
+      l = (lg^2)*9  -- floor(exp (sqrt(lg)))  
       m = fndPrimes [2..l] []
   powp m n l 1
       
@@ -324,32 +325,31 @@ powp m n b r = powp (tail m) n b (r*p) where
   p = (head m)^e
 
 -- ecm try factorize n via elliptic curve method
-ecm :: Integer -> [Integer] -> (Integer,Integer)
-ecm n a = do
+ecm :: Integer -> Integer -> [Integer] -> (Integer,Integer,Integer)
+ecm n k a = do
   if a == [] 
-   then (0,0)
+   then (0,0,0)
    else if gcd n d > 1
-    then (div n d, div n (div n d))  -- d = 4a^3+27b^2 where a=1, b=1
+    then (div n d, div n (div n d),head a)  -- d = 4a^3+27b^2 where a=1, b=1
     else do
-      let k = lcmB n 
-          x1 = 0
+      let x1 = 0
           y1 = 1
           rs = ecm2 n k (head a) (x1,y1) (x1,y1) []
-      if rs /= (0,0) 
+      if rs /= (0,0,0) 
         then rs
-        else ecm n (tail a)
+        else ecm n k (tail a)
    where 
     b = 1
     d = 4*(head a)^3 + 27*b^2 
 
 -- ecm2
-ecm2 :: Integer -> Integer -> Integer -> (Integer,Integer) -> (Integer,Integer) -> [(Integer,Integer)] -> (Integer,Integer)
+ecm2 :: Integer -> Integer -> Integer -> (Integer,Integer) -> (Integer,Integer) -> [(Integer,Integer)] -> (Integer,Integer,Integer)
 ecm2 n k a p1 p2 r =
   if k > 0
     then if gy > 1 && gy < n
-      then (gy, div n gy)
+      then (gy, div n gy,a)
       else if gy == n   
-       then (0,0)
+       then (0,0,0)
        else if (mod k 2) == 0
         then ecm2 n (div k 2) a r1 r1 r
         else ecm2 n (div k 2) a r1 r1 (r++p1:[])
@@ -357,9 +357,9 @@ ecm2 n k a p1 p2 r =
     then if gx == 1
       then ecm2 n k a pr p2 (pr:(tail (tail r)))
       else if gx == n   
-       then (0,0)
-       else (gx, div n gx)
-    else (0,0)
+       then (0,0,0)
+       else (gx, div n gx,a)
+    else (0,0,0)
   where
     r1 = px2 n a (fst p1) (snd p1)
     gx = gcd ((fst (r!!0))-(fst (r!!1))) n

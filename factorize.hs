@@ -64,7 +64,11 @@ main = do
        then sqfof n
        else if ty == "9" || ty == "10" 
         then do
-          let rs = ecm n [1..511]
+          let k = lcmB n
+--        putStr "got k in "
+--        gotk <- getCurrentTime
+--        print (diffUTCTime gotk start)
+          let rs = ecm n k [1..511]
           print rs
         else do 
          let b = log (fromIntegral n)
