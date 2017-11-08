@@ -52,25 +52,25 @@ main = do
  print (show n)
  start <- getCurrentTime
  if ty == "1" || ty == "3"
-   then do 
+   then do                -- Pollard p-1 method k!
      let pq = factP n 2 1
      print pq
    else if ty == "2" || ty == "4" 
-     then do 
+     then do              -- Pollard p-1 method LCM
        let primes = fndPrimes [2..floor(8*sqrt (fromIntegral n))] [] 
        let pq = factP' n primes 1
        print pq
      else if ty == "5" || ty == "6" 
-       then sqfof n
+       then sqfof n        -- Square Form method
        else if ty == "9" || ty == "10" 
-        then do
+        then do            -- Lenstra Elliptic Curve Method
           let k = lcmB n
 --        putStr "got k in "
 --        gotk <- getCurrentTime
 --        print (diffUTCTime gotk start)
-          let rs = ecm n k [1..511]
+          let rs = ecm n k [1..1501]
           print rs
-        else do 
+        else do           -- Quadratic Sieving
          let b = log (fromIntegral n)
          let f = if n < 10^9 then 0.63 else if n < 10^13 then 0.58 else if n < 10^16 then 0.56 else if n < 10^19 then 0.52 else if n < 10^22 then 0.51 else 0.49
          let sqb = f * sqrt (b)
